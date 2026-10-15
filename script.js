@@ -1,3 +1,4 @@
+
 /* =====================================================================
    AuraStudio — site script
    LEAD FORM SETUP: paste your n8n (or any) webhook URL below.
@@ -24,6 +25,13 @@ var WEBHOOK_URL = ''; // e.g. 'https://your-n8n-domain/webhook/aurastudio-lead'
 
 document.addEventListener('DOMContentLoaded', function () {
   var root = document.documentElement;
+
+  /* ---- Email links (address is assembled here so it is not sitting in the HTML for spam bots) ---- */
+  document.querySelectorAll('.email-link').forEach(function (a) {
+    var addr = a.getAttribute('data-u') + '@' + a.getAttribute('data-d');
+    a.setAttribute('href', 'mailto:' + addr);
+    a.setAttribute('aria-label', 'Email ' + addr);
+  });
 
   /* ---- Footer year ---- */
   var year = document.getElementById('year');
@@ -191,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!ok) return;
 
     if (!WEBHOOK_URL) {
-      setStatus('This form is not connected yet. Please reach out on LinkedIn instead.', 'err');
+      setStatus('This form is not connected yet. Please email or message me on LinkedIn instead.', 'err');
       return;
     }
 
@@ -209,14 +217,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fetch(WEBHOOK_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(payload)
     }).then(function (res) {
       if (!res.ok) throw new Error('Request failed');
       setStatus('Thanks, ' + payload.name + '! Your message is in and you will hear back by email.', 'ok');
       form.reset();
     }).catch(function () {
-      setStatus('Something went wrong sending your message. Please try again or reach out on LinkedIn.', 'err');
+      setStatus('Something went wrong sending your message. Please try again, or email or message me on LinkedIn.', 'err');
     }).then(function () {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Send message';
